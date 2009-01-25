@@ -66,17 +66,17 @@ def main(argv):
         
         #shutil.move()
 
-def read_exif(filename):
+def read_exif(path):
     try:
-        file = open(filename, 'rb')
+        file = open(path, 'rb')
     except:
-        print "%s could not be read" % filename
+        print "%s could not be read" % path
         return
     
     data = exif.process_file(file)
     
     if not data:
-        print "No EXIF information found in %s " % filename
+        print "No EXIF information found in %s " % path
         return
     
     return data
