@@ -41,17 +41,11 @@ def main(options, args):
         date = None
         
         if options.use_exif:
-            try:
-                exif = read_exif(path)        
-            except:
-                print "%s could not be read" % path
-            else:
-                if exif:
-                    date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
-                
-                elif options.verbose:
-                    print "No EXIF information found: %s" % path
-                
+            date = get_exif_date(path)
+            
+            if not date and options.verbose:
+                print "No EXIF information found: %s" % path
+            
         if not date:
             date = get_modification_date(path)
         
@@ -65,7 +59,18 @@ def main(options, args):
         if options.verbose:
             print "Moving", file , "to", new_directory
         
-        shutil.move(path, os.path.join(new_directory, file))
+        #shutil.move(path, os.path.join(new_directory, file))
+
+def get_exif_date(path):
+    try:
+        exif = read_exif(path)        
+    except:
+        print "%s could not be read" % path
+    else:
+        if exif:
+            return datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
+        
+    return None
 
 def read_exif(path):
     file = open(path, 'rb')
