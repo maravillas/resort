@@ -50,13 +50,13 @@ def main(argv):
             date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
         
         else:
-            date = datetime.datetime.fromtimestamp(os.stat().st_mtime)
+            date = datetime.fromtimestamp(os.stat(current_path).st_mtime)
         
         new_directory = os.path.join(os.path.split(path)[0],
                                      str(date.year), 
                                      "%02d" % date.month)
         
-        print new_directory 
+        print current_path, new_directory 
         #os.makedirs(new_directory)
         
         #shutil.move(current_path, os.path.join(new_directory, file))
