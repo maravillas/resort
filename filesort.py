@@ -28,25 +28,19 @@ import shutil
 import fnmatch
 from datetime import datetime
 import exif
+import optparse
 
-use_exif = True
-pattern = "*.jpg"
-
-def main(argv):
-    if len(argv) < 1:
-        usage()
-        sys.exit(2)
+def main(options, args):
+    path = args[0]
     
-    path = argv[0]
-    
-    files = fnmatch.filter(os.listdir(path), pattern)
+    files = fnmatch.filter(os.listdir(path), options.pattern)
     
     for file in files:
         current_path = os.path.join(path, file)
         
         date = None
         
-        if use_exif:
+        if options.use_exif:
             exif = read_exif(current_path)
         
             if exif:
@@ -88,4 +82,19 @@ def usage():
     print "Usage: %s <directory>" % (os.path.basename(sys.argv[0]))
     
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    parser = optparse.OptionParser("Usage: %prog [options] path")
+    parser.add_option("-x", "--ignore-exif", dest="use_exif",
+                      action="store_false", help="ignore any EXIF dates found")
+    parser.add_option("-p", "--pattern", dest="pattern",
+                      help="file pattern to match")
+    
+    parser.set_defaults(use_exif=True, pattern="*.*")
+    
+    (options, args) = parser.parse_args()
+    
+    print options
+    
+    if len(args) != 1:
+        parser.error("Missing path argument")
+           
+    main(options, args)
