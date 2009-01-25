@@ -44,13 +44,16 @@ def main(argv):
     for file in files:
         current_path = os.path.join(path, file)
         
-        exif = read_exif(current_path)
+        date = None
         
-        if exif:
-            date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
+        if use_exif:
+            exif = read_exif(current_path)
         
-        else:
-            date = datetime.fromtimestamp(os.stat(current_path).st_mtime)
+            if exif:
+                date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
+        
+        if not date:
+            date = get_modification_date(current_path)
         
         new_directory = os.path.join(os.path.split(path)[0],
                                      str(date.year), 
@@ -77,8 +80,10 @@ def read_exif(filename):
         return
     
     return data
-    
-        
+
+def get_modification_date(path):
+    return datetime.fromtimestamp(os.stat(path).st_mtime)
+
 def usage():
     print "Usage: %s <directory>" % (os.path.basename(sys.argv[0]))
     
