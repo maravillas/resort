@@ -34,18 +34,24 @@ def main(options, args):
     path = args[0]
     
     files = fnmatch.filter(os.listdir(path), options.pattern)
-    
+        
     for file in files:
         current_path = os.path.join(path, file)
         
         date = None
         
         if options.use_exif:
-            exif = read_exif(current_path)
-        
-            if exif:
-                date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
-        
+            try:
+                exif = read_exif(current_path)        
+            except:
+                print "%s could not be read" % path
+            else:
+                if exif:
+                    date = datetime.strptime(str(exif["Image DateTime"]), "%Y:%m:%d %H:%M:%S")
+                
+                elif options.verbose:
+                    print "No EXIF information found: %s" % path
+                
         if not date:
             date = get_modification_date(current_path)
         
@@ -55,24 +61,16 @@ def main(options, args):
         
         if not os.access(new_directory, os.F_OK):
             os.makedirs(new_directory)
-        
-        print "moving to", os.path.join(new_directory, file)
+                
+        if options.verbose:
+            print "Moving", file , "to", new_directory
         
         shutil.move(current_path, os.path.join(new_directory, file))
-    
 
 def read_exif(path):
-    try:
-        file = open(path, 'rb')
-    except:
-        print "%s could not be read" % path
-        return
+    file = open(path, 'rb')
     
     data = exif.process_file(file)
-    
-    if not data:
-        print "No EXIF information found in %s " % path
-        return
     
     return data
     
@@ -84,18 +82,25 @@ def usage():
     
 if __name__ == "__main__":
     parser = optparse.OptionParser("Usage: %prog [options] path")
+    
     parser.add_option("-x", "--ignore-exif", dest="use_exif",
                       action="store_false", help="ignore any EXIF dates found")
     parser.add_option("-p", "--pattern", dest="pattern",
                       help="file pattern to match")
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      action="store_true", help="verbose output")
     
-    parser.set_defaults(use_exif=True, pattern="*.*")
+    parser.set_defaults(use_exif=True, pattern="*.*", verbose=False)
     
     (options, args) = parser.parse_args()
     
-    print options
-    
     if len(args) != 1:
         parser.error("Missing path argument")
+    
+    if options.verbose:
+        if options.use_exif:
+            print "Using EXIF dates"
+        
+        print "File pattern:", options.pattern
            
     main(options, args)
