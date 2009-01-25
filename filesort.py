@@ -31,18 +31,18 @@ import exif
 import optparse
 
 def main(options, args):
-    path = args[0]
+    directory = args[0]
     
-    files = fnmatch.filter(os.listdir(path), options.pattern)
+    files = fnmatch.filter(os.listdir(directory), options.pattern)
         
     for file in files:
-        current_path = os.path.join(path, file)
+        path = os.path.join(directory, file)
         
         date = None
         
         if options.use_exif:
             try:
-                exif = read_exif(current_path)        
+                exif = read_exif(path)        
             except:
                 print "%s could not be read" % path
             else:
@@ -53,9 +53,9 @@ def main(options, args):
                     print "No EXIF information found: %s" % path
                 
         if not date:
-            date = get_modification_date(current_path)
+            date = get_modification_date(path)
         
-        new_directory = os.path.join(os.path.split(path)[0],
+        new_directory = os.path.join(os.path.split(directory)[0],
                                      str(date.year), 
                                      "%02d" % date.month)
         
@@ -65,7 +65,7 @@ def main(options, args):
         if options.verbose:
             print "Moving", file , "to", new_directory
         
-        shutil.move(current_path, os.path.join(new_directory, file))
+        shutil.move(path, os.path.join(new_directory, file))
 
 def read_exif(path):
     file = open(path, 'rb')
@@ -81,7 +81,7 @@ def usage():
     print "Usage: %s <directory>" % (os.path.basename(sys.argv[0]))
     
 if __name__ == "__main__":
-    parser = optparse.OptionParser("Usage: %prog [options] path")
+    parser = optparse.OptionParser("Usage: %prog [options] directory")
     
     parser.add_option("-x", "--ignore-exif", dest="use_exif",
                       action="store_false", help="ignore any EXIF dates found")
