@@ -53,12 +53,13 @@ def main(options, args):
                                      str(date.year), 
                                      "%02d" % date.month)
         
-        print current_path, new_directory 
-        #os.makedirs(new_directory)
+        if not os.access(new_directory, os.F_OK):
+            os.makedirs(new_directory)
         
-        #shutil.move(current_path, os.path.join(new_directory, file))
+        print "moving to", os.path.join(new_directory, file)
         
-        #shutil.move()
+        shutil.move(current_path, os.path.join(new_directory, file))
+    
 
 def read_exif(path):
     try:
@@ -74,7 +75,7 @@ def read_exif(path):
         return
     
     return data
-
+    
 def get_modification_date(path):
     return datetime.fromtimestamp(os.stat(path).st_mtime)
 
