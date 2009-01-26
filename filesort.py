@@ -62,6 +62,9 @@ def main(options, args):
         #shutil.move(path, os.path.join(new_directory, file))
 
 def get_exif_date(path):
+    """Return the date contained in the EXIF metadata for the file at path.
+    Returns None if the file is not an image, or contains no EXIF metadata. 
+    """
     try:
         exif = read_exif(path)        
     except:
