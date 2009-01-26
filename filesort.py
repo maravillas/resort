@@ -62,7 +62,7 @@ def main(options, args):
         #shutil.move(path, os.path.join(new_directory, file))
 
 def get_exif_date(path):
-    """Return the date contained in the EXIF metadata for the file at path.
+    """Return the date and time  contained in the EXIF metadata for the file at path.
     Returns None if the file is not an image, or contains no EXIF metadata. 
     """
     try:
@@ -76,6 +76,7 @@ def get_exif_date(path):
     return None
 
 def read_exif(path):
+    """Return the EXIF metadata from the file at path."""
     file = open(path, 'rb')
     
     data = exif.process_file(file)
@@ -83,6 +84,7 @@ def read_exif(path):
     return data
     
 def get_modification_date(path):
+    """Return the modification date & time of the file at path."""
     return datetime.fromtimestamp(os.stat(path).st_mtime)
     
 if __name__ == "__main__":
