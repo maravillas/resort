@@ -31,35 +31,34 @@ import exif
 import optparse
 
 def main(options, args):
-    directory = args[0]
-    
-    files = fnmatch.filter(os.listdir(directory), options.pattern)
-        
-    for file in files:
-        path = os.path.join(directory, file)
-        
-        date = None
-        
-        if options.use_exif:
-            date = get_exif_date(path)
+    for directory in args:
+        files = fnmatch.filter(os.listdir(directory), options.pattern)
             
-            if not date and options.verbose:
-                print "No EXIF information found: %s" % path
+        for file in files:
+            path = os.path.join(directory, file)
             
-        if not date:
-            date = get_modification_date(path)
-        
-        new_directory = os.path.join(os.path.split(directory)[0],
-                                     str(date.year), 
-                                     "%02d" % date.month)
-        
-        if not os.access(new_directory, os.F_OK):
-            os.makedirs(new_directory)
+            date = None
+            
+            if options.use_exif:
+                date = get_exif_date(path)
                 
-        if options.verbose:
-            print "Moving", file , "to", new_directory
-        
-        #shutil.move(path, os.path.join(new_directory, file))
+                if not date and options.verbose:
+                    print "No EXIF information found: %s" % path
+                
+            if not date:
+                date = get_modification_date(path)
+            
+            new_directory = os.path.join(os.path.split(directory)[0],
+                                         str(date.year), 
+                                         "%02d" % date.month)
+            
+            if not os.access(new_directory, os.F_OK):
+                os.makedirs(new_directory)
+                    
+            if options.verbose:
+                print "Moving", file , "to", new_directory
+            
+            #shutil.move(path, os.path.join(new_directory, file))
 
 def get_exif_date(path):
     """Return the date and time  contained in the EXIF metadata for the file at path.
@@ -87,8 +86,10 @@ def get_modification_date(path):
     """Return the modification date & time of the file at path."""
     return datetime.fromtimestamp(os.stat(path).st_mtime)
     
+    
+    
 if __name__ == "__main__":
-    parser = optparse.OptionParser("Usage: %prog [options] directory")
+    parser = optparse.OptionParser("Usage: %prog [options] directory ...")
     
     parser.add_option("-x", "--ignore-exif", dest="use_exif",
                       action="store_false", help="ignore any EXIF dates found")
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     
     (options, args) = parser.parse_args()
     
-    if len(args) != 1:
+    if len(args) < 1:
         parser.error("Missing path argument")
     
     if options.verbose:
