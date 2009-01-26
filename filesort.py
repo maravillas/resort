@@ -81,9 +81,6 @@ def read_exif(path):
     
 def get_modification_date(path):
     return datetime.fromtimestamp(os.stat(path).st_mtime)
-
-def usage():
-    print "Usage: %s <directory>" % (os.path.basename(sys.argv[0]))
     
 if __name__ == "__main__":
     parser = optparse.OptionParser("Usage: %prog [options] directory")
