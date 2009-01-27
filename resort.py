@@ -52,13 +52,14 @@ def main(options, args):
                                          str(date.year), 
                                          "%02d" % date.month)
             
-            if not os.access(new_directory, os.F_OK):
-                os.makedirs(new_directory)
+            if not options.pretend:
+                if not os.access(new_directory, os.F_OK):
+                    os.makedirs(new_directory)
                     
-            if options.verbose:
-                print "Moving", file , "to", new_directory
-            
-            #shutil.move(path, os.path.join(new_directory, file))
+                shutil.move(path, os.path.join(new_directory, file))
+                    
+            if options.verbose or options.pretend:
+                print path , "->", new_directory
 
 def get_exif_date(path):
     """Return the date and time  contained in the EXIF metadata for the file at path.
@@ -97,8 +98,13 @@ if __name__ == "__main__":
                       help="file pattern to match")
     parser.add_option("-v", "--verbose", dest="verbose",
                       action="store_true", help="verbose output")
+    parser.add_option("-P", "--pretend", dest="pretend",
+                      action="store_true", help="don't actually move files")
     
-    parser.set_defaults(use_exif=True, pattern="*.*", verbose=False)
+    parser.set_defaults(use_exif=True, 
+                        pattern="*.*", 
+                        verbose=False,
+                        pretend=False)
     
     (options, args) = parser.parse_args()
     
