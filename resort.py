@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_option("-p", "--pattern", dest="pattern",
                       help="file pattern to match")
     parser.add_option("-v", "--verbose", dest="verbose",
-                      action="store_true", help="verbose output")
+                      action="store_true", help="show verbose output")
     parser.add_option("-P", "--pretend", dest="pretend",
                       action="store_true", help="don't actually move files")
     
