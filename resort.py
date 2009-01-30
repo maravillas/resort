@@ -31,35 +31,46 @@ import exif
 import optparse
 
 def main(options, args):
+        
     for directory in args:
-        files = fnmatch.filter(os.listdir(directory), options.pattern)
+        
+        if options.recurse:
+            for dirpath, dirnames, filenames in os.walk(directory):
+                for file in fnmatch.filter(filenames, options.pattern):
+                    sort_file(directory, dirpath, file)
             
-        for file in files:
-            path = os.path.join(directory, file)
-            
-            date = None
-            
-            if options.use_exif:
-                date = get_exif_date(path)
+        else:
+            for file in fnmatch.filter(os.listdir(directory), options.pattern):
+                sort_file(directory, directory, file)
                 
-                if not date and options.verbose:
-                    print "No EXIF information found: %s" % path
-                
-            if not date:
-                date = get_modification_date(path)
+
+def sort_file(basedir, directory, file):
+    path = os.path.join(directory, file)
+    
+    date = None
+    
+    if options.use_exif:
+        date = get_exif_date(path)
+        
+        if not date and options.verbose:
+            print "No EXIF information found: %s" % path
+        
+    if not date:
+        date = get_modification_date(path)
+    
+    new_directory = os.path.join(os.path.split(basedir)[0],
+                                 str(date.year), 
+                                 "%02d" % date.month)
+    
+    if not options.pretend:
+        if not os.access(new_directory, os.F_OK):
+            os.makedirs(new_directory)
             
-            new_directory = os.path.join(os.path.split(directory)[0],
-                                         str(date.year), 
-                                         "%02d" % date.month)
+        shutil.move(path, os.path.join(new_directory, file))
             
-            if not options.pretend:
-                if not os.access(new_directory, os.F_OK):
-                    os.makedirs(new_directory)
-                    
-                shutil.move(path, os.path.join(new_directory, file))
-                    
-            if options.verbose or options.pretend:
-                print path , "->", new_directory
+    if options.verbose or options.pretend:
+        print path , "->", new_directory
+
 
 def get_exif_date(path):
     """Return the date and time  contained in the EXIF metadata for the file at path.
@@ -96,13 +107,16 @@ if __name__ == "__main__":
                       action="store_false", help="ignore any EXIF dates found")
     parser.add_option("-p", "--pattern", dest="pattern",
                       help="file pattern to match")
+    parser.add_option("-r", "--recurse", dest="recurse",
+                      action="store_true", help="recurse into subdirectories")
     parser.add_option("-v", "--verbose", dest="verbose",
                       action="store_true", help="show verbose output")
     parser.add_option("-P", "--pretend", dest="pretend",
                       action="store_true", help="don't actually move files")
     
     parser.set_defaults(use_exif=True, 
-                        pattern="*.*", 
+                        pattern="*.*",
+                        recurse=False,
                         verbose=False,
                         pretend=False)
     
