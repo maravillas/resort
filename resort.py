@@ -31,21 +31,22 @@ import exif
 import optparse
 
 def main(options, args):
-        
+    
     for directory in args:
+        basedir = os.path.abspath(options.destination or os.path.split(directory)[0])
         
         if options.recurse:
             for dirpath, dirnames, filenames in os.walk(directory):
                 for file in fnmatch.filter(filenames, options.pattern):
-                    sort_file(directory, dirpath, file)
+                    sort_file(basedir, dirpath, file)
             
         else:
             for file in fnmatch.filter(os.listdir(directory), options.pattern):
-                sort_file(directory, directory, file)
+                sort_file(basedir, directory, file)
                 
 
 def sort_file(basedir, directory, file):
-    path = os.path.join(directory, file)
+    path = os.path.abspath(os.path.join(directory, file))
     
     date = None
     
@@ -58,7 +59,7 @@ def sort_file(basedir, directory, file):
     if not date:
         date = get_modification_date(path)
     
-    new_directory = os.path.join(os.path.split(basedir)[0],
+    new_directory = os.path.join(basedir,
                                  str(date.year), 
                                  "%02d" % date.month)
     
@@ -109,6 +110,8 @@ if __name__ == "__main__":
                       help="file pattern to match")
     parser.add_option("-r", "--recurse", dest="recurse",
                       action="store_true", help="recurse into subdirectories")
+    parser.add_option("-d", "--destination", dest="destination",
+                      help="directory that will contain sorted files")
     parser.add_option("-v", "--verbose", dest="verbose",
                       action="store_true", help="show verbose output")
     parser.add_option("-P", "--pretend", dest="pretend",
@@ -117,6 +120,7 @@ if __name__ == "__main__":
     parser.set_defaults(use_exif=True, 
                         pattern="*.*",
                         recurse=False,
+                        destination=None,
                         verbose=False,
                         pretend=False)
     
