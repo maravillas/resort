@@ -134,5 +134,10 @@ if __name__ == "__main__":
             print "Using EXIF dates"
         
         print "File pattern:", options.pattern
+        
+        if options.recurse:
+            print "Recursing into subdirectories"
+        
+        print "Destination directory: %s" % (options.destination or "Default")
            
     main(options, args)
