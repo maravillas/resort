@@ -1,0 +1,34 @@
+resort README
+
+
+resort is a small Python script that will sort files into new directories based
+on file dates.
+
+
+Usage: resort.py [options] directory ...
+
+Options:
+  -h, --help            show this help message and exit
+  -x, --ignore-exif     ignore any EXIF dates found
+  -p PATTERN, --pattern=PATTERN
+                        file pattern to match
+  -r, --recurse         recurse into subdirectories
+  -d DESTINATION, --destination=DESTINATION
+                        directory that will contain sorted files
+  -v, --verbose         show verbose output
+  -P, --pretend         don't actually move files
+  
+  
+Files are sorted by year and month. One directory is created for each year,
+and contains one directory for each month.
+
+If the file is a photo containing EXIF information, the EXIF date is used to
+sort the file. Otherwise, the file's modification date is used.
+
+By default, the sorted directories are created in the same directory as each of
+the directory arguments. If two directories passed as arguments are not in the
+same directory, their files will not be sorted into the same set of directories.
+
+This can be overcome by specifying the destination option. The sorted
+directories will be created in the directory specified in this option, and all
+files in all directories to be sorted will be placed in the same location.
